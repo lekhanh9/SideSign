@@ -328,7 +328,7 @@ public extension DeveloperPortal {
             "Content-Type": "text/x-xml-plist",
             "X-MMe-Client-Info": anisetteData.clientInfo,
             "Accept": "*/*",
-            "User-Agent": h.grandSlam.userAgent,
+            "User-Agent": !anisetteData.userAgent.isEmpty ? anisetteData.userAgent : h.grandSlam.userAgent,
             "Connection": "close"
         ]
         headers.forEach { request.setValue($1, forHTTPHeaderField: $0) }
@@ -866,7 +866,8 @@ public extension DeveloperPortal {
         verifyRequest.httpMethod = "POST"
         verifyRequest.httpBody = Data()
         verifyRequest.setValue(code, forHTTPHeaderField: "security-code")
-        verifyRequest.setValue(customHeaders.grandSlam.userAgent, forHTTPHeaderField: "User-Agent")
+        let ua = !context.anisetteData.userAgent.isEmpty ? context.anisetteData.userAgent : customHeaders.grandSlam.userAgent
+        verifyRequest.setValue(ua, forHTTPHeaderField: "User-Agent")
         verifyRequest.setValue(context.dsid, forHTTPHeaderField: "X-Apple-I-DSID")
 
         if let allHeaders = verifyRequest.allHTTPHeaderFields {
