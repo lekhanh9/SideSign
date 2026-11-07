@@ -14,6 +14,7 @@ public enum AnisetteMode: Sendable, Equatable, Codable, Hashable {
     case remote(server: URL)
     case localODA(libsDir: URL, provisioningDir: URL? = nil)
     case remoteODA(sourceURL: URL, fallbackURL: URL? = nil)
+    case localMacAuth(authKitPath: URL? = nil, aidAuthPath: URL? = nil)
 }
 
 public struct ODAInfo: Codable, Equatable, Sendable {
@@ -502,6 +503,17 @@ public final class AnisetteDataManager: @unchecked Sendable {
                 try await setupFromRemote(serverSourceURL: sourceURL, fallbackODAURL: fallbackURL, clientInfo: clientInfo)
             }
             return try await ensureProviderLoaded(clientInfo: clientInfo)
+
+        case .localMacAuth(let akPath, let aidPath):
+            try FileManager.default.createDirectory(at: provisioningDir, withIntermediateDirectories: true)
+            return try AnisetteClient(
+                provisioningDir: provisioningDir,
+                clientInfo: clientInfo,
+                userAgent: Constants.Anisette.defaultUserAgent,
+                lookupURL: Constants.Anisette.URLs.grandSlamLookup,
+                requiredLibraries: [],
+                provider: MacAuthAnisetteDataProvider(authKitPath: akPath?.path, aidAuthPath: aidPath?.path)
+            )
         }
     }
 
